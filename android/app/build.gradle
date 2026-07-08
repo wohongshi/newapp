@@ -68,12 +68,4 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "androidx.lifecycle:lifecycle-runtime:2.6.2"
-}
-
-configurations.all {
-    resolutionStrategy {
-        force 'androidx.lifecycle:lifecycle-runtime:2.6.2'
-        force 'androidx.lifecycle:lifecycle-common:2.6.2'
-    }
 }
