@@ -1,0 +1,41 @@
+# Flutter specific
+*.dart_tool/
+*.iml
+.idea/
+.gradle/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.lock
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/gradle/
+*.jks
+*.keystore
+*.hprof
+local.properties
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Runner.xcworkspace/xcshareddata/
+
+# Rust
+rust_backend/target/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+*.swp
+*.swo
+*~
+.vscode/
