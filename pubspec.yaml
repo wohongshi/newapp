@@ -23,6 +23,10 @@ dependencies:
   pdf: ^3.10.7
   provider: ^6.1.1
 
+dependency_overrides:
+  flutter_plugin_android_lifecycle:
+    version: 2.0.22
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
