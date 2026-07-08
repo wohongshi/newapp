@@ -36,9 +36,9 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Install Android NDK
+      - name: Install Android NDK and SDK platforms
         run: |
-          sdkmanager "ndk;27.0.12077973"
+          sdkmanager "ndk;27.0.12077973" "platforms;android-35" "build-tools;35.0.0"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> $GITHUB_ENV
 
       - name: Build Rust for Android (arm64)
