@@ -33,13 +33,13 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
-
-      - name: Install Android NDK
+      - name: Setup Android SDK and NDK
         run: |
-          sdkmanager "ndk;27.0.12077973"
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;27.0.12077973"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> $GITHUB_ENV
+          # Verify SDK 34 is installed
+          ls -la $ANDROID_HOME/platforms/android-34/android.jar
 
       - name: Build Rust for Android (arm64)
         working-directory: rust_backend
