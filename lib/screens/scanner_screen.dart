@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../db/database_helper.dart';
 import '../models/product.dart';
 import '../models/pricing_rule.dart';
+import '../services/cart_manager.dart';
 import 'cart_screen.dart';
 import 'product_form_screen.dart';
 

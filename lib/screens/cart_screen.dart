@@ -112,7 +112,7 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final total = _cart.total;
-    final finalTotal = (total - _discount).clamp(0, double.infinity);
+    final finalTotal = (total - _discount).clamp(0, double.infinity).toDouble();
 
     return Scaffold(
       appBar: AppBar(
@@ -348,7 +348,7 @@ class _CartScreenState extends State<CartScreen> {
 
   void _checkout() async {
     final total = _cart.total;
-    final finalTotal = (total - _discount).clamp(0, double.infinity);
+    final finalTotal = (total - _discount).clamp(0, double.infinity).toDouble();
 
     final confirm = await showDialog<bool>(
       context: context,
