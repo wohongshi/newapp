@@ -27,7 +27,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     namespace "com.newapp.pos"
-    compileSdkVersion 35
+    compileSdkVersion 34
     ndkVersion "25.2.9519653"
 
     compileOptions {
@@ -68,4 +68,12 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "androidx.lifecycle:lifecycle-runtime:2.6.2"
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.lifecycle:lifecycle-runtime:2.6.2'
+        force 'androidx.lifecycle:lifecycle-common:2.6.2'
+    }
 }
