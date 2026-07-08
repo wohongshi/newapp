@@ -36,11 +36,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install NDK
+      - name: Install NDK and fix SDK 35
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;25.2.9519653"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;25.2.9519653" "platforms;android-35" "build-tools;35.0.0"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
+          # Verify SDK 35 jar is valid
+          if ! jar tf $ANDROID_HOME/platforms/android-35/android.jar > /dev/null 2>&1; then
+            echo "SDK 35 jar is corrupted, reinstalling..."
+            rm -rf $ANDROID_HOME/platforms/android-35
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-35"
+          fi
 
       - name: Build Rust for Android (arm64)
         working-directory: rust_backend
