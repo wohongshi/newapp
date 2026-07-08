@@ -20,11 +20,9 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
     project.evaluationDependsOn(':app')
-    afterEvaluate { project ->
-        if (project.hasProperty('android')) {
+    project.plugins.whenPluginAdded { plugin ->
+        if (plugin.class.name == 'com.android.build.gradle.AppPlugin' || plugin.class.name == 'com.android.build.gradle.LibraryPlugin') {
             project.android.compileSdkVersion 34
         }
     }
