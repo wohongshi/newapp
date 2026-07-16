@@ -8,6 +8,7 @@ class PricingRule {
   final int priority;
   final List<RuleCondition> conditions;
   final RuleAction action;
+  final List<String> selectedProductIds; // 选定的商品ID列表
   final String createdAt;
   final String updatedAt;
 
@@ -18,6 +19,7 @@ class PricingRule {
     this.priority = 0,
     required this.conditions,
     required this.action,
+    this.selectedProductIds = const [],
     String? createdAt,
     String? updatedAt,
   })  : id = id ?? const Uuid().v4(),
@@ -32,6 +34,7 @@ class PricingRule {
         'rules_json': jsonEncode({
           'conditions': conditions.map((c) => c.toMap()).toList(),
           'action': action.toMap(),
+          'selected_product_ids': selectedProductIds,
         }),
         'created_at': createdAt,
         'updated_at': updatedAt,
@@ -49,6 +52,10 @@ class PricingRule {
               .toList() ??
           [],
       action: RuleAction.fromMap(data['action'] ?? {}),
+      selectedProductIds: (data['selected_product_ids'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       createdAt: map['created_at'],
       updatedAt: map['updated_at'],
     );
@@ -60,6 +67,7 @@ class PricingRule {
     int? priority,
     List<RuleCondition>? conditions,
     RuleAction? action,
+    List<String>? selectedProductIds,
   }) =>
       PricingRule(
         id: id,
@@ -68,6 +76,7 @@ class PricingRule {
         priority: priority ?? this.priority,
         conditions: conditions ?? this.conditions,
         action: action ?? this.action,
+        selectedProductIds: selectedProductIds ?? this.selectedProductIds,
         createdAt: createdAt,
         updatedAt: DateTime.now().toIso8601String(),
       );
@@ -104,7 +113,6 @@ class RuleCondition {
       'category': '分类',
       'total_quantity': '总数量',
       'total_amount': '总金额',
-      'product_id': '商品',
     };
     final opNames = {
       'gte': '≥',
@@ -120,51 +128,44 @@ class RuleCondition {
 }
 
 class RuleAction {
-  final String actionType;
+  final String actionType; // fixed_price, percent_discount, amount_discount, buy_n_get_n
   final double value;
-  final String applyTo;
+  final int buyCount;   // 买N赠N：买几个
+  final int getCount;   // 买N赠N：送几个
 
   RuleAction({
     required this.actionType,
     required this.value,
-    this.applyTo = 'item',
+    this.buyCount = 1,
+    this.getCount = 1,
   });
 
   Map<String, dynamic> toMap() => {
         'action_type': actionType,
         'value': value,
-        'apply_to': applyTo,
+        'buy_count': buyCount,
+        'get_count': getCount,
       };
 
   factory RuleAction.fromMap(Map<String, dynamic> map) => RuleAction(
         actionType: map['action_type'] ?? 'fixed_price',
         value: (map['value'] as num?)?.toDouble() ?? 0,
-        applyTo: map['apply_to'] ?? 'item',
+        buyCount: (map['buy_count'] as num?)?.toInt() ?? 1,
+        getCount: (map['get_count'] as num?)?.toInt() ?? 1,
       );
 
   String get displayText {
-    final typeNames = {
-      'fixed_price': '固定价格',
-      'percent_discount': '百分比折扣',
-      'amount_discount': '立减',
-      'bogo': '买一送一',
-    };
-    final applyNames = {
-      'item': '单品',
-      'all_matching': '所有匹配商品',
-      'cart': '整单',
-    };
     switch (actionType) {
       case 'fixed_price':
-        return '${typeNames[actionType]} ¥${value.toStringAsFixed(2)} (${applyNames[applyTo]})';
+        return '固定价格 ¥${value.toStringAsFixed(2)}';
       case 'percent_discount':
-        return '打${(100 - value).toStringAsFixed(0)}折 (${applyNames[applyTo]})';
+        return '打${(100 - value).toStringAsFixed(0)}折';
       case 'amount_discount':
-        return '立减¥${value.toStringAsFixed(2)} (${applyNames[applyTo]})';
-      case 'bogo':
-        return '买一送一 (${applyNames[applyTo]})';
+        return '立减¥${value.toStringAsFixed(2)}';
+      case 'buy_n_get_n':
+        return '买$buyCount赠$getCount';
       default:
-        return '${typeNames[actionType]} $value';
+        return '$actionType $value';
     }
   }
 }

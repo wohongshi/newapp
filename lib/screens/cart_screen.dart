@@ -41,30 +41,49 @@ class _CartScreenState extends State<CartScreen> {
     _appliedRuleNames.clear();
 
     for (final rule in _rules.where((r) => r.enabled)) {
+      // 检查规则是否适用于购物车中的商品
+      bool ruleApplied = false;
+      
       for (final item in _cart.items) {
-        if (_evaluateConditions(item, rule.conditions)) {
-          switch (rule.action.actionType) {
-            case 'fixed_price':
-              if (item.price > rule.action.value) {
-                discount += (item.price - rule.action.value) * item.quantity;
-                _appliedRuleNames.add(rule.name);
-              }
-              break;
-            case 'percent_discount':
-              discount += item.price * item.quantity * rule.action.value / 100;
-              _appliedRuleNames.add(rule.name);
-              break;
-            case 'amount_discount':
-              discount += rule.action.value * item.quantity;
-              _appliedRuleNames.add(rule.name);
-              break;
-            case 'bogo':
-              final freeCount = item.quantity ~/ 2;
-              discount += item.price * freeCount;
-              _appliedRuleNames.add(rule.name);
-              break;
-          }
+        // 检查是否是选定的商品
+        bool isSelected = rule.selectedProductIds.isEmpty || 
+            rule.selectedProductIds.contains(item.productId);
+        
+        if (!isSelected) continue;
+        
+        // 检查条件是否满足
+        if (!_evaluateConditions(item, rule.conditions)) continue;
+        
+        // 应用规则
+        switch (rule.action.actionType) {
+          case 'fixed_price':
+            if (item.price > rule.action.value) {
+              discount += (item.price - rule.action.value) * item.quantity;
+              ruleApplied = true;
+            }
+            break;
+          case 'percent_discount':
+            discount += item.price * item.quantity * rule.action.value / 100;
+            ruleApplied = true;
+            break;
+          case 'amount_discount':
+            discount += rule.action.value * item.quantity;
+            ruleApplied = true;
+            break;
+          case 'buy_n_get_n':
+            // 买N赠N：每买buyCount件，送getCount件免费
+            final buyCount = rule.action.buyCount;
+            final getCount = rule.action.getCount;
+            final sets = item.quantity ~/ (buyCount + getCount);
+            final freeItems = sets * getCount;
+            discount += item.price * freeItems;
+            if (freeItems > 0) ruleApplied = true;
+            break;
         }
+      }
+      
+      if (ruleApplied) {
+        _appliedRuleNames.add(rule.name);
       }
     }
 
