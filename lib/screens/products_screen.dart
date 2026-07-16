@@ -103,10 +103,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
               children: [
                 Text('共 ${_products.length} 件商品',
                     style: const TextStyle(fontWeight: FontWeight.w600)),
-                const Spacer(),
-                Text(
-                    '总价值 ¥${_products.fold<double>(0, (s, p) => s + p.price * p.stock).toStringAsFixed(2)}',
-                    style: TextStyle(color: theme.colorScheme.primary)),
               ],
             ),
           ),
@@ -152,29 +148,18 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             final p = item as Product;
                             return ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: _stockColor(p.stock),
+                                backgroundColor: theme.colorScheme.primaryContainer,
                                 child: Text(p.name.isNotEmpty ? p.name[0] : '?',
-                                    style: const TextStyle(color: Colors.white)),
+                                    style: TextStyle(color: theme.colorScheme.onPrimaryContainer)),
                               ),
                               title: Text(p.name,
                                   style: const TextStyle(fontWeight: FontWeight.w600)),
-                              subtitle: Text(
-                                  '${p.brand} · ${p.barcode} · 库存: ${p.stock}'),
-                              trailing: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text('¥${p.price.toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: theme.colorScheme.primary)),
-                                  if (p.cost > 0)
-                                    Text('成本 ¥${p.cost.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                            fontSize: 11, color: Colors.grey)),
-                                ],
-                              ),
+                              subtitle: Text('${p.brand} · ${p.barcode}'),
+                              trailing: Text('¥${p.price.toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: theme.colorScheme.primary)),
                               onTap: () async {
                                 await Navigator.push(
                                     context,
@@ -213,12 +198,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
     if (price < 50) return '¥10 - ¥50';
     if (price < 100) return '¥50 - ¥100';
     return '¥100+';
-  }
-
-  Color _stockColor(int stock) {
-    if (stock <= 0) return Colors.red;
-    if (stock < 10) return Colors.orange;
-    return Colors.green;
   }
 
   void _addProduct() async {

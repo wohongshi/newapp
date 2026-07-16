@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import '../db/database_helper.dart';
 import '../models/product.dart';
 import '../models/pricing_rule.dart';
@@ -20,8 +21,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   late final TextEditingController _brandCtrl;
   late final TextEditingController _categoryCtrl;
   late final TextEditingController _priceCtrl;
-  late final TextEditingController _costCtrl;
-  late final TextEditingController _stockCtrl;
   bool _saving = false;
 
   @override
@@ -33,8 +32,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _brandCtrl = TextEditingController(text: p?.brand ?? '');
     _categoryCtrl = TextEditingController(text: p?.category ?? '');
     _priceCtrl = TextEditingController(text: p != null ? p.price.toString() : '');
-    _costCtrl = TextEditingController(text: p != null ? p.cost.toString() : '');
-    _stockCtrl = TextEditingController(text: p != null ? p.stock.toString() : '0');
   }
 
   @override
@@ -57,14 +54,30 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            TextFormField(
-              controller: _barcodeCtrl,
-              decoration: const InputDecoration(
-                labelText: '条码 *',
-                prefixIcon: Icon(Icons.qr_code),
-                border: OutlineInputBorder(),
-              ),
-              validator: (v) => v == null || v.isEmpty ? '请输入条码' : null,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _barcodeCtrl,
+                    decoration: const InputDecoration(
+                      labelText: '条码 *',
+                      prefixIcon: Icon(Icons.qr_code),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) => v == null || v.isEmpty ? '请输入条码' : null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  height: 56,
+                  child: FilledButton.icon(
+                    onPressed: _scanBarcode,
+                    icon: const Icon(Icons.qr_code_scanner),
+                    label: const Text('扫码'),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -95,47 +108,19 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _priceCtrl,
-                    decoration: const InputDecoration(
-                      labelText: '售价 *',
-                      prefixIcon: Icon(Icons.attach_money),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return '请输入售价';
-                      if (double.tryParse(v) == null) return '无效数字';
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: TextFormField(
-                    controller: _costCtrl,
-                    decoration: const InputDecoration(
-                      labelText: '成本',
-                      prefixIcon: Icon(Icons.money_off),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             TextFormField(
-              controller: _stockCtrl,
+              controller: _priceCtrl,
               decoration: const InputDecoration(
-                labelText: '库存',
-                prefixIcon: Icon(Icons.inventory_outlined),
+                labelText: '售价 *',
+                prefixIcon: Icon(Icons.attach_money),
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
+              validator: (v) {
+                if (v == null || v.isEmpty) return '请输入售价';
+                if (double.tryParse(v) == null) return '无效数字';
+                return null;
+              },
             ),
             const SizedBox(height: 32),
             FilledButton.icon(
@@ -171,8 +156,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         brand: _brandCtrl.text.trim(),
         category: _categoryCtrl.text.trim(),
         price: double.parse(_priceCtrl.text),
-        cost: double.tryParse(_costCtrl.text) ?? 0,
-        stock: int.tryParse(_stockCtrl.text) ?? 0,
         createdAt: widget.product?.createdAt,
       );
 
@@ -225,6 +208,28 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     }
   }
 
+  void _scanBarcode() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => Scaffold(
+          appBar: AppBar(title: const Text('扫描条码')),
+          body: MobileScanner(
+            onDetect: (capture) {
+              final barcode = capture.barcodes.firstOrNull;
+              if (barcode?.rawValue != null) {
+                Navigator.pop(ctx);
+                setState(() {
+                  _barcodeCtrl.text = barcode!.rawValue!;
+                });
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _barcodeCtrl.dispose();
@@ -232,8 +237,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _brandCtrl.dispose();
     _categoryCtrl.dispose();
     _priceCtrl.dispose();
-    _costCtrl.dispose();
-    _stockCtrl.dispose();
     super.dispose();
   }
 }

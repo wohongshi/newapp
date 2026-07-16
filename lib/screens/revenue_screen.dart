@@ -18,7 +18,6 @@ class _RevenueScreenState extends State<RevenueScreen> {
 
   double _totalRevenue = 0;
   double _totalDiscount = 0;
-  double _totalProfit = 0;
   int _totalTransactions = 0;
   int _totalItems = 0;
   Map<String, double> _dailyRevenue = {};
@@ -82,7 +81,6 @@ class _RevenueScreenState extends State<RevenueScreen> {
       _sales = sales;
       _totalRevenue = revenue;
       _totalDiscount = discount;
-      _totalProfit = revenue * 0.4; // Simplified profit estimate
       _totalTransactions = sales.length;
       _totalItems = items;
       _dailyRevenue = dailyRev;
@@ -197,16 +195,16 @@ class _RevenueScreenState extends State<RevenueScreen> {
           color: Colors.blue,
         ),
         _StatCard(
-          icon: Icons.trending_up,
-          label: '利润',
-          value: '¥${_totalProfit.toStringAsFixed(2)}',
-          color: Colors.green,
-        ),
-        _StatCard(
           icon: Icons.receipt_long,
           label: '交易数',
           value: '$_totalTransactions',
           color: Colors.orange,
+        ),
+        _StatCard(
+          icon: Icons.shopping_bag,
+          label: '商品数',
+          value: '$_totalItems',
+          color: Colors.green,
         ),
         _StatCard(
           icon: Icons.discount,

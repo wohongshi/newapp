@@ -332,7 +332,6 @@ class _CartScreenState extends State<CartScreen> {
                         name: p.name,
                         brand: p.brand,
                         price: p.price,
-                        cost: p.cost,
                       ));
                       Navigator.pop(ctx);
                     },

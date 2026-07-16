@@ -22,6 +22,7 @@ dependencies:
   archive: ^3.4.9
   pdf: ^3.10.7
   provider: ^6.1.1
+  http: ^1.2.0
 
 dependency_overrides:
   flutter_plugin_android_lifecycle:

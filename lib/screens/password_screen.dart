@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../db/database_helper.dart';
 import 'home_screen.dart';
 
@@ -18,8 +17,6 @@ class PasswordScreen extends StatefulWidget {
 }
 
 class _PasswordScreenState extends State<PasswordScreen> {
-  final _storage = const FlutterSecureStorage();
-  final _controller = TextEditingController();
   String _password = '';
   String? _error;
   bool _isSetup = false;
@@ -46,25 +43,19 @@ class _PasswordScreenState extends State<PasswordScreen> {
         if (_password.isNotEmpty) {
           _password = _password.substring(0, _password.length - 1);
         }
-      } else if (key == 'skip') {
-        // Skip password setup
-        if (_isSetup) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          );
-        }
       } else if (_password.length < 8) {
         _password += key;
       }
       _error = null;
     });
-
-    if (_password.length >= 4 && !_isSetup) {
-      _verifyPassword();
-    }
   }
 
   Future<void> _verifyPassword() async {
+    if (_password.length < 4) {
+      setState(() => _error = '密码至少4位');
+      return;
+    }
+    
     final db = DatabaseHelper.instance;
     final stored = await db.getSetting('app_password');
     if (stored == _password) {
@@ -132,7 +123,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              _isSetup ? '设置4-8位数字密码，可跳过' : '请输入密码以继续',
+              _isSetup ? '设置4-8位数字密码' : '请输入密码以继续',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -165,17 +156,12 @@ class _PasswordScreenState extends State<PasswordScreen> {
             // Numpad
             _buildNumpad(theme),
             const SizedBox(height: 16),
-            if (_isSetup && !_isConfirming)
-              TextButton(
-                onPressed: () => _onKeyPress('skip'),
-                child: const Text('跳过密码设置'),
-              ),
-            if (_isSetup && _password.length >= 4)
+            if (_password.length >= 4)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: FilledButton(
-                  onPressed: _onSubmit,
-                  child: Text(_isConfirming ? '确认' : '下一步'),
+                  onPressed: _isSetup ? _onSubmit : _verifyPassword,
+                  child: Text(_isSetup ? (_isConfirming ? '确认' : '下一步') : '确认'),
                 ),
               ),
           ],
@@ -232,7 +218,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 }
